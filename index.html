@@ -1,0 +1,942 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="MusicAPI V2 developer documentation — PHP + MySQL REST API for a Flutter music app.">
+    <title>MusicAPI V2 — Developer Docs</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div class="app">
+        <header class="topbar">
+            <a class="brand" href="#overview" aria-label="MusicAPI V2 home">
+                <span class="brand-mark">♫</span>
+                <span><b>MusicAPI <span class="ver-pill">v1 API</span></b><small>V2 Docs</small></span>
+            </a>
+            <div class="top-actions">
+                <label class="base-picker">Base URL
+          <select id="baseUrl">
+            <option value="https://musicapi-1xqp.onrender.com">Production</option>
+            <option value="http://localhost/MusicAPI-v2">Local WAMP</option>
+          </select>
+        </label>
+                <button id="themeBtn" class="icon-btn" title="Toggle theme">☼</button>
+                <a class="github-btn" href="https://github.com/YOUR_USERNAME/MusicAPI-v2" title="Replace with your repository URL">GitHub ↗</a>
+            </div>
+        </header>
+
+        <div class="mobilebar">
+            <button id="menuBtn" class="menu-btn">☰ <span>Menu</span></button>
+            <input id="mobileSearch" class="search" placeholder="Search docs…">
+        </div>
+
+        <aside class="sidebar" id="sidebar">
+            <div class="search-wrap">
+                <input id="search" class="search" placeholder="Search docs…" autocomplete="off">
+                <kbd>⌘ K</kbd>
+            </div>
+            <div id="searchResults" class="search-results"></div>
+            <nav id="nav"></nav>
+        </aside>
+
+        <main class="content">
+            <div class="status-banner">
+                <span class="pulse"></span>
+                <b>API online</b>
+                <span>REST · JSON · JWT</span>
+                <code id="activeBase">https://musicapi-1xqp.onrender.com</code>
+            </div>
+
+            <!-- ============================== OVERVIEW ============================== -->
+            <section id="overview" class="hero doc-section">
+                <div class="eyebrow">Developer Documentation · v1</div>
+                <h1>Build music experiences<br><span>with MusicAPI.</span></h1>
+                <p class="lead">A PHP 8.3 + MySQL REST API built as the backend for a Flutter music streaming application — songs, artists, albums, search, playlists, favorites, history, profiles and playback tracking.</p>
+                <div class="hero-actions">
+                    <a class="primary" href="#quickstart">Get started <span>→</span></a>
+                    <a class="secondary" href="#reference">API Reference</a>
+                    <a class="secondary" href="#explorer">Try the API</a>
+                </div>
+                <div class="stats">
+                    <div><strong>42</strong><span>active routes</span></div>
+                    <div><strong>JWT</strong><span>HS256 authentication</span></div>
+                    <div><strong>PHP 8.3</strong><span>backend</span></div>
+                    <div><strong>MySQL</strong><span>Aiven-hosted</span></div>
+                </div>
+                <div class="feature-grid">
+                    <article><b>Music</b><span>Songs, albums, artists and genre-tag filtering.</span></article>
+                    <article><b>Discovery</b><span>Trending, popular, latest and recommended music.</span></article>
+                    <article><b>Personalization</b><span>Favorites, listening history and recommendations.</span></article>
+                    <article><b>Playlists</b><span>Create and manage user playlists.</span></article>
+                    <article><b>Authentication</b><span>Secure JWT-based auth with HS256 signing.</span></article>
+                    <article><b>Developer friendly</b><span>Predictable JSON responses and pagination.</span></article>
+                </div>
+                <div class="callout">This documentation covers the <b>current, active implementation only</b>. Controller methods that exist but aren't registered in the router are called out explicitly — see <a href="#implementation">Implementation Notes</a> — instead of
+                    being presented as live endpoints.</div>
+            </section>
+
+            <!-- ============================== ARCHITECTURE ============================== -->
+            <section id="architecture" class="doc-section">
+                <div class="eyebrow">Introduction</div>
+                <h2>Architecture</h2>
+                <p>MusicAPI V2 follows a lightweight, custom MVC-style request flow — no framework, just a router, controllers, models and a thin database layer.</p>
+                <div class="flow">
+                    <span>HTTP Request</span><i>→</i><span>index.php</span><i>→</i><span>Router</span><i>→</i><span>Controller</span><i>→</i><span>Model</span><i>→</i><span>MySQL</span><i>→</i><span>JSON</span>
+                </div>
+                <p><b style="color:var(--text)">Authentication flow:</b></p>
+                <div class="flow auth-flow"><span>Flutter App</span><i>POST /auth/login</i><span>MusicAPI</span><i>Validate</i><span>MySQL</span><i>JWT issued</i><span>Protected endpoint</span></div>
+                <div class="callout"><b>Routing note</b><br>Locally, <code>/MusicAPI-v2</code> is stripped before the request reaches the custom router — <code>http://localhost/MusicAPI-v2/songs</code> is matched internally as just <code>songs</code>. Production requests
+                    on Render never carry that prefix.</div>
+            </section>
+
+            <!-- ============================== TECH STACK ============================== -->
+            <section id="stack" class="doc-section">
+                <div class="eyebrow">Introduction</div>
+                <h2>Technology Stack</h2>
+                <div class="tech-grid">
+                    <article><b>PHP 8.3</b><span>Backend language</span></article>
+                    <article><b>MySQL</b><span>Relational database</span></article>
+                    <article><b>MySQLi</b><span>Database connectivity</span></article>
+                    <article><b>REST + JSON</b><span>API architecture</span></article>
+                    <article><b>JWT</b><span>Authentication</span></article>
+                    <article><b>Docker</b><span>Containerization</span></article>
+                    <article><b>Render</b><span>Production hosting</span></article>
+                    <article><b>Aiven</b><span>Managed MySQL</span></article>
+                    <article><b>Flutter</b><span>Client application</span></article>
+                    <article><b>Cloudinary</b><span>Audio / image assets</span></article>
+                    <article><b>Composer</b><span>PHP dependency management</span></article>
+                </div>
+            </section>
+
+            <!-- ============================== PROJECT STRUCTURE ============================== -->
+            <section id="structure" class="doc-section">
+                <div class="eyebrow">Introduction</div>
+                <h2>Project Structure</h2>
+                <div class="code-wrap"><button class="copy-btn" data-copy>Copy</button><pre><code>MusicAPI-v2/
+├── app/
+│   ├── Controllers/
+│   │   ├── AlbumController.php
+│   │   ├── ArtistController.php
+│   │   ├── AuthController.php
+│   │   ├── FavoriteController.php
+│   │   ├── GenreController.php
+│   │   ├── HistoryController.php
+│   │   ├── HomeController.php
+│   │   ├── PlaylistController.php
+│   │   ├── ProfileController.php
+│   │   ├── SearchController.php
+│   │   ├── SettingsController.php
+│   │   └── SongController.php
+│   ├── Core/
+│   │   ├── Api.php
+│   │   ├── Controller.php
+│   │   ├── Database.php
+│   │   ├── ErrorHandler.php
+│   │   ├── Model.php
+│   │   ├── Request.php
+│   │   └── Router.php
+│   ├── Helpers/
+│   │   ├── JWT.php
+│   │   ├── Response.php
+│   │   └── Validator.php
+│   ├── Middleware/
+│   │   ├── AuthMiddleware.php
+│   │   └── CorsMiddleware.php
+│   └── Models/
+│       ├── Album.php
+│       ├── Artist.php
+│       ├── Favorite.php
+│       ├── Genre.php
+│       ├── History.php
+│       ├── Playlist.php
+│       ├── Profile.php
+│       ├── Song.php
+│       ├── User.php
+│       └── UserSettings.php
+├── config/
+│   └── config.php
+├── database/
+│   └── music_app_v2.sql
+├── docs/
+│   ├── API.md
+│   └── DATABASE.md
+├── routes/
+│   └── api.php
+├── index.php
+├── Dockerfile
+├── .dockerignore
+├── .gitignore
+└── .htaccess</code></pre></div>
+            </section>
+
+            <!-- ============================== QUICK START ============================== -->
+            <section id="quickstart" class="doc-section">
+                <div class="eyebrow">Getting Started</div>
+                <h2>Quick Start</h2>
+                <ol class="steps">
+                    <li><b>Clone the project</b>
+                        <div class="code-wrap"><button class="copy-btn" data-copy>Copy</button><pre><code>git clone YOUR_REPOSITORY_URL
+cd MusicAPI-v2</code></pre></div>
+                    </li>
+                    <li><b>Import the database</b>
+                        <p>Import <code>database/music_app_v2.sql</code> into MySQL / MariaDB.</p>
+                    </li>
+                    <li><b>Configure secrets</b>
+                        <p>Set the database and JWT variables shown in <a href="#env">Environment Variables</a>. For local dev you can optionally use <code>config/secrets.php</code> — never commit it.</p>
+                    </li>
+                    <li><b>Start Apache/WAMP</b>
+                        <div class="code-wrap"><button class="copy-btn" data-copy>Copy</button><pre><code>http://localhost/MusicAPI-v2/</code></pre></div>
+                    </li>
+                    <li><b>Check API health</b>
+                        <div class="code-wrap"><button class="copy-btn" data-copy>Copy</button><pre><code>GET /</code></pre></div>
+                        <p>Expected response:</p>
+                        <div class="code-wrap"><button class="copy-btn" data-copy>Copy</button><pre><code>{
+  "success": true,
+  "api": "MusicAPI",
+  "version": "v1",
+  "status": "online"
+}</code></pre></div>
+                    </li>
+                    <li><b>Test songs</b>
+                        <div class="code-wrap"><button class="copy-btn" data-copy>Copy</button><pre><code>GET /songs</code></pre></div>
+                    </li>
+                </ol>
+            </section>
+
+            <!-- ============================== LOCAL DEV ============================== -->
+            <section id="local" class="doc-section">
+                <div class="eyebrow">Getting Started</div>
+                <h2>Local Development</h2>
+                <p>Run the project with WAMP/Apache. The local base URL is:</p>
+                <div class="code-wrap"><button class="copy-btn" data-copy>Copy</button><pre><code>http://localhost/MusicAPI-v2/</code></pre></div>
+                <p>For phone testing, use your computer's LAN IPv4 address instead of <code>localhost</code>:</p>
+                <div class="code-wrap"><button class="copy-btn" data-copy>Copy</button><pre><code>http://192.168.x.x/MusicAPI-v2/songs</code></pre></div>
+                <div class="callout warning"><b>Why?</b> On a phone, <code>localhost</code> means the phone itself. Both devices must be on the same network.</div>
+            </section>
+
+            <!-- ============================== ENV VARS ============================== -->
+            <section id="env" class="doc-section">
+                <div class="eyebrow">Getting Started</div>
+                <h2>Environment Variables</h2>
+                <p>Never commit production credentials. Configure:</p>
+                <div class="env-grid">
+                    <code>APP_ENV</code><code>APP_URL</code><code>DB_HOST</code><code>DB_PORT</code><code>DB_NAME</code><code>DB_USER</code><code>DB_PASS</code><code>JWT_SECRET</code>
+                </div>
+                <div class="section-label">Local</div>
+                <div class="code-wrap"><button class="copy-btn" data-copy>Copy</button><pre><code>DB_HOST=your-database-host
+DB_PORT=22031
+DB_NAME=defaultdb
+DB_USER=avnadmin
+DB_PASS=YOUR_PASSWORD
+JWT_SECRET=YOUR_SECRET
+APP_ENV=development
+APP_URL=http://localhost/MusicAPI-v2/</code></pre></div>
+                <div class="section-label">Production (Render)</div>
+                <div class="code-wrap"><button class="copy-btn" data-copy>Copy</button><pre><code>DB_HOST=YOUR_DATABASE_HOST
+DB_PORT=YOUR_DATABASE_PORT
+DB_NAME=YOUR_DATABASE_NAME
+DB_USER=YOUR_DATABASE_USER
+DB_PASS=YOUR_PASSWORD
+JWT_SECRET=YOUR_JWT_SECRET
+APP_ENV=production
+APP_URL=https://musicapi-1xqp.onrender.com</code></pre></div>
+                <div class="section-label">Optional local secrets file</div>
+                <p><code>config/secrets.php</code> can hold local-only values and must never be committed. Render doesn't need it — Render injects environment variables directly.</p>
+                <div class="code-wrap"><button class="copy-btn" data-copy>Copy</button><pre><code>&lt;?php
+
+putenv('DB_HOST=your-host');
+putenv('DB_PORT=22031');
+putenv('DB_NAME=defaultdb');
+putenv('DB_USER=avnadmin');
+putenv('DB_PASS=YOUR_PASSWORD');
+putenv('JWT_SECRET=YOUR_SECRET');</code></pre></div>
+                <div class="callout warning"><b>Never commit</b> database passwords, JWT secrets, API keys, <code>.env</code>, or <code>config/secrets.php</code>. This documentation only ever uses placeholders like <code>YOUR_PASSWORD</code>.</div>
+            </section>
+
+            <!-- ============================== DATABASE SETUP ============================== -->
+            <section id="database" class="doc-section">
+                <div class="eyebrow">Getting Started</div>
+                <h2>Database Setup</h2>
+                <p>The application uses the <code>defaultdb</code> database with MySQL/MariaDB-compatible connectivity through MySQLi.</p>
+                <div class="code-wrap"><button class="copy-btn" data-copy>Copy</button><pre><code>mysql -u YOUR_DB_USER -p defaultdb &lt; database/music_app_v2.sql</code></pre></div>
+                <p>See <a href="#db-overview">Database</a> below for the full table list, column schema and entity relationships.</p>
+            </section>
+
+            <!-- ============================== TESTING ============================== -->
+            <section id="testing" class="doc-section">
+                <div class="eyebrow">Getting Started</div>
+                <h2>API Testing</h2>
+                <p>Recommended tools: Postman, Thunder Client, Insomnia, curl, or the Flutter app itself.</p>
+                <div class="checklist-grid">
+                    <div><b>01</b>GET /</div>
+                    <div><b>02</b>POST /auth/register</div>
+                    <div><b>03</b>POST /auth/login</div>
+                    <div><b>04</b>Save JWT</div>
+                    <div><b>05</b>GET /home</div>
+                    <div><b>06</b>GET /songs</div>
+                    <div><b>07</b>GET /songs/1</div>
+                    <div><b>08</b>GET /songs/trending</div>
+                    <div><b>09</b>GET /artists</div>
+                    <div><b>10</b>GET /albums</div>
+                    <div><b>11</b>GET /tracks?tags=Hindi</div>
+                    <div><b>12</b>GET /search?q=arijit</div>
+                    <div><b>13</b>GET /favorites</div>
+                    <div><b>14</b>POST /favorites</div>
+                    <div><b>15</b>GET /history</div>
+                    <div><b>16</b>GET /playlists</div>
+                    <div><b>17</b>POST /playlists</div>
+                    <div><b>18</b>GET /profile</div>
+                    <div><b>19</b>GET /settings</div>
+                    <div><b>20</b>POST /auth/logout</div>
+                </div>
+                <p>Use the JWT returned from register/login for every protected endpoint above.</p>
+            </section>
+
+            <!-- ============================== JWT ============================== -->
+            <section id="jwt" class="doc-section">
+                <div class="eyebrow">Authentication</div>
+                <h2>JWT Authentication</h2>
+                <p>Login and registration return a JSON Web Token. Protected endpoints require:</p>
+                <div class="code-wrap"><button class="copy-btn" data-copy>Copy</button><pre><code>Authorization: Bearer YOUR_JWT_TOKEN</code></pre></div>
+                <div class="two-col">
+                    <div class="card"><b>Algorithm</b><strong>HS256</strong></div>
+                    <div class="card"><b>Expiration</b><strong>7 days</strong></div>
+                    <div class="card"><b>Refresh token</b><strong>Not implemented</strong></div>
+                    <div class="card"><b>Logout</b><strong>Client removes token</strong></div>
+                </div>
+                <div class="section-label">Token payload</div>
+                <div class="code-wrap"><button class="copy-btn" data-copy>Copy</button><pre><code>{
+  "user_id": 1,
+  "email": "user@example.com",
+  "iat": 1234567890,
+  "exp": 1235172690
+}</code></pre></div>
+                <div class="callout"><b>No refresh route.</b> When a token expires, the client must log in again — <code>JWT_EXPIRE = 60*60*24*7</code>.</div>
+            </section>
+
+            <section id="register" class="doc-section">
+                <div class="eyebrow">Authentication</div>
+                <h2>POST /auth/register</h2>
+                <div class="endpoint-head"><span class="method post">POST</span><code>/auth/register</code><span class="auth public">Public</span></div>
+                <p>Registers a new user and returns a JWT plus the new user. Registration automatically creates default user settings.</p>
+                <div class="section-label">Request Body</div>
+                <div class="code-wrap"><button class="copy-btn" data-copy>Copy</button><pre><code>{
+  "name": "Test User",
+  "email": "test@example.com",
+  "password": "Password123",
+  "password_confirmation": "Password123"
+}</code></pre></div>
+                <table class="param-table">
+                    <thead>
+                        <tr>
+                            <th>Field</th>
+                            <th>Type</th>
+                            <th>Required</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>name</td>
+                            <td>string</td>
+                            <td><span class="req-flag req-yes">required</span></td>
+                        </tr>
+                        <tr>
+                            <td>email</td>
+                            <td>string</td>
+                            <td><span class="req-flag req-yes">required</span></td>
+                        </tr>
+                        <tr>
+                            <td>password</td>
+                            <td>string</td>
+                            <td><span class="req-flag req-yes">required</span></td>
+                        </tr>
+                        <tr>
+                            <td>password_confirmation</td>
+                            <td>string</td>
+                            <td><span class="req-flag req-yes">required</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="section-label">Example Response · 201</div>
+                <div class="code-wrap"><button class="copy-btn" data-copy>Copy</button><pre><code>{
+  "success": true,
+  "message": "Created Successfully",
+  "data": {
+    "token": "JWT_TOKEN",
+    "user": { "id": 1, "name": "Test User", "email": "test@example.com" }
+  }
+}</code></pre></div>
+                <div class="error-list">
+                    <div class="error-item"><b>422</b><span>Validation failed — invalid email, weak password, or mismatched confirmation</span></div>
+                    <div class="error-item"><b>409</b><span>Email already exists</span></div>
+                </div>
+            </section>
+
+            <section id="login" class="doc-section">
+                <div class="eyebrow">Authentication</div>
+                <h2>POST /auth/login</h2>
+                <div class="endpoint-head"><span class="method post">POST</span><code>/auth/login</code><span class="auth public">Public</span></div>
+                <p>Authenticates an existing user and returns a JWT.</p>
+                <div class="section-label">Request Body</div>
+                <div class="code-wrap"><button class="copy-btn" data-copy>Copy</button><pre><code>{
+  "email": "test@example.com",
+  "password": "Password123"
+}</code></pre></div>
+                <div class="section-label">Example Response · 200</div>
+                <div class="code-wrap"><button class="copy-btn" data-copy>Copy</button><pre><code>{
+  "success": true,
+  "message": "Success",
+  "data": {
+    "token": "JWT_TOKEN",
+    "user": { "id": 1, "name": "Test User", "email": "test@example.com", "is_premium": false }
+  }
+}</code></pre></div>
+                <div class="callout warning"><b>401 Unauthorized</b> is returned for invalid credentials.</div>
+            </section>
+
+            <section id="logout" class="doc-section">
+                <div class="eyebrow">Authentication</div>
+                <h2>POST /auth/logout</h2>
+                <div class="endpoint-head"><span class="method post">POST</span><code>/auth/logout</code><span class="auth none">No explicit auth</span></div>
+                <p>The current implementation returns a successful logout response but does not invalidate JWTs server-side — JWTs are stateless. The Flutter client is responsible for discarding the stored token.</p>
+                <div class="code-wrap"><button class="copy-btn" data-copy>Copy</button><pre><code>{
+  "success": true,
+  "message": "Logged out successfully.",
+  "data": null
+}</code></pre></div>
+            </section>
+
+            <!-- ============================== RESPONSE FORMAT ============================== -->
+            <section id="conventions" class="doc-section">
+                <div class="eyebrow">API Reference</div>
+                <h2>Response Format</h2>
+                <p>Every endpoint returns a consistent JSON envelope.</p>
+                <div class="two-col" style="grid-template-columns:1fr 1fr">
+                    <div>
+                        <div class="section-label">Success</div>
+                        <div class="code-wrap"><button class="copy-btn" data-copy>Copy</button><pre><code>{
+  "success": true,
+  "message": "Success",
+  "data": {}
+}</code></pre></div>
+                        <div class="section-label">Created · 201</div>
+                        <div class="code-wrap"><button class="copy-btn" data-copy>Copy</button><pre><code>{
+  "success": true,
+  "message": "Created Successfully",
+  "data": {}
+}</code></pre></div>
+                    </div>
+                    <div>
+                        <div class="section-label">Error</div>
+                        <div class="code-wrap"><button class="copy-btn" data-copy>Copy</button><pre><code>{
+  "success": false,
+  "message": "Error",
+  "errors": null
+}</code></pre></div>
+                        <div class="section-label">Validation Failed · 422</div>
+                        <div class="code-wrap"><button class="copy-btn" data-copy>Copy</button><pre><code>{
+  "success": false,
+  "message": "Validation Failed",
+  "errors": { "email": ["Invalid email."] }
+}</code></pre></div>
+                    </div>
+                </div>
+                <div class="section-label">Route not found</div>
+                <div class="code-wrap"><button class="copy-btn" data-copy>Copy</button><pre><code>{
+  "success": false,
+  "message": "Route not found"
+}</code></pre></div>
+            </section>
+
+            <!-- ============================== STATUS CODES ============================== -->
+            <section id="statuscodes" class="doc-section">
+                <div class="eyebrow">API Reference</div>
+                <h2>HTTP Status Codes</h2>
+                <div class="route-table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Status</th>
+                                <th>Meaning</th>
+                            </tr>
+                        </thead>
+                        <tbody id="statusTable"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- ============================== ROOT ============================== -->
+            <section id="root" class="doc-section">
+                <div class="eyebrow">API Reference</div>
+                <h2>GET /</h2>
+                <p>Health-check endpoint — useful for uptime monitors and deployment verification.</p>
+                <div class="endpoint-head"><span class="method get">GET</span><code>/</code><span class="auth public">Public</span></div>
+                <div class="code-wrap"><button class="copy-btn" data-copy>Copy</button><pre><code>{
+  "success": true,
+  "api": "MusicAPI",
+  "version": "v1",
+  "status": "online"
+}</code></pre></div>
+            </section>
+
+            <!-- ============================== HOME ============================== -->
+            <section id="home" class="doc-section">
+                <div class="eyebrow">API Reference</div>
+                <h2>GET /home</h2>
+                <p>Returns the main home-page discovery data: trending, popular, new releases, recommendations, top artists, top albums and continue-listening.</p>
+                <div class="endpoint-head"><span class="method get">GET</span><code>/home</code><span class="auth optional">Optional</span></div>
+                <div class="code-wrap"><button class="copy-btn" data-copy>Copy</button><pre><code>{
+  "success": true,
+  "message": "Success",
+  "data": {
+    "trending": [],
+    "popular": [],
+    "new_release": [],
+    "recommended": [],
+    "top_artists": [],
+    "top_albums": [],
+    "continue_listening": []
+  }
+}</code></pre></div>
+                <div class="callout info"><b>Authentication:</b> Optional. Guest users always receive an empty <code>continue_listening</code> list; a valid JWT can enable listening-history-based personalization.</div>
+            </section>
+
+            <!-- ============================== SONGS ============================== -->
+            <section id="songs" class="doc-section">
+                <div class="eyebrow">API Reference · Songs</div>
+                <h2>Songs</h2>
+                <p>Browse, inspect, filter and track playback of songs.</p>
+                <div class="endpoint-list" id="songEndpoints"></div>
+            </section>
+
+            <!-- ============================== ARTISTS ============================== -->
+            <section id="artists" class="doc-section">
+                <div class="eyebrow">API Reference · Artists</div>
+                <h2>Artists</h2>
+                <div class="endpoint-list" id="artistEndpoints"></div>
+            </section>
+
+            <!-- ============================== ALBUMS ============================== -->
+            <section id="albums" class="doc-section">
+                <div class="eyebrow">API Reference · Albums</div>
+                <h2>Albums</h2>
+                <div class="endpoint-list" id="albumEndpoints"></div>
+            </section>
+
+            <!-- ============================== GENRES ============================== -->
+            <section id="genres" class="doc-section">
+                <div class="eyebrow">API Reference · Genres</div>
+                <h2>Genres</h2>
+                <p>There is no dedicated genre API surface currently registered.</p>
+                <div class="callout warning"><span class="not-registered">not registered</span>&nbsp; A <code>GenreController</code> exists with <code>index</code>, <code>show</code> and <code>search</code> methods, but <code>routes/api.php</code> does not register any genre routes.
+                    Genre filtering is instead exposed through <code>GET /tracks?tags=...</code> — documented under <a href="#songs">Songs</a>.</div>
+            </section>
+
+            <!-- ============================== SEARCH ============================== -->
+            <section id="search" class="doc-section">
+                <div class="eyebrow">API Reference · Search</div>
+                <h2>GET /search</h2>
+                <p>Searches songs and artists in a single request.</p>
+                <div class="endpoint-head"><span class="method get">GET</span><code>/search</code><span class="auth public">Public</span></div>
+                <table class="param-table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Type</th>
+                            <th>Required</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>q</td>
+                            <td>string</td>
+                            <td><span class="req-flag req-yes">required</span></td>
+                        </tr>
+                        <tr>
+                            <td>page</td>
+                            <td>integer</td>
+                            <td><span class="req-flag req-no">optional</span></td>
+                        </tr>
+                        <tr>
+                            <td>limit</td>
+                            <td>integer</td>
+                            <td><span class="req-flag req-no">optional</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="code-wrap"><button class="copy-btn" data-copy>Copy</button><pre><code>GET /search?q=arijit</code></pre></div>
+                <div class="code-wrap"><button class="copy-btn" data-copy>Copy</button><pre><code>{
+  "success": true,
+  "message": "Success",
+  "data": {
+    "query": "arijit",
+    "songs": { "data": [], "pagination": {} },
+    "artists": { "data": [], "pagination": {} }
+  }
+}</code></pre></div>
+                <div class="callout">If the query is empty, both result sets are empty. The current implementation does <b>not</b> support a <code>type=song</code> or <code>type=artist</code> filter parameter — it is not documented as available because it is not implemented.</div>
+            </section>
+
+            <!-- ============================== FAVORITES ============================== -->
+            <section id="favorites" class="doc-section">
+                <div class="eyebrow">API Reference · Favorites</div>
+                <h2>Favorites</h2>
+                <p>All favorites routes require authentication.</p>
+                <div class="endpoint-list" id="favoriteEndpoints"></div>
+            </section>
+
+            <!-- ============================== HISTORY ============================== -->
+            <section id="history" class="doc-section">
+                <div class="eyebrow">API Reference · History</div>
+                <h2>Listening History</h2>
+                <p>All history routes require authentication.</p>
+                <div class="endpoint-list" id="historyEndpoints"></div>
+            </section>
+
+            <!-- ============================== PLAYLISTS ============================== -->
+            <section id="playlists" class="doc-section">
+                <div class="eyebrow">API Reference · Playlists</div>
+                <h2>Playlists</h2>
+                <p>Manage user playlists and their songs.</p>
+                <div class="endpoint-list" id="playlistEndpoints"></div>
+                <div class="callout warning"><span class="not-registered">not registered</span>&nbsp; <code>PlaylistController</code> contains a <code>show()</code> method, but <code>GET /playlists/{id}</code> is <b>not</b> registered in the router. The active playlist-detail route
+                    is <code>GET /playlists/{id}/tracks</code>.</div>
+            </section>
+
+            <!-- ============================== PROFILE ============================== -->
+            <section id="profile" class="doc-section">
+                <div class="eyebrow">API Reference · Profile</div>
+                <h2>Profile</h2>
+                <div class="endpoint-list">
+                    <article class="endpoint-card">
+                        <div class="endpoint-head"><span class="method get">GET</span><code>/profile</code><span class="auth required">Required</span></div>
+                        <p>Returns the authenticated user's profile and usage counts.</p>
+                        <div class="code-wrap"><button class="copy-btn" data-copy>Copy</button><pre><code>{
+  "id": 1,
+  "name": "Test User",
+  "email": "test@example.com",
+  "avatar_url": null,
+  "country": null,
+  "birth_date": null,
+  "gender": "other",
+  "bio": null,
+  "is_premium": false,
+  "status": true,
+  "created_at": "...",
+  "favorite_count": 10,
+  "playlist_count": 3,
+  "history_count": 100
+}</code></pre></div>
+                    </article>
+                    <article class="endpoint-card">
+                        <div class="endpoint-head"><span class="method put">PUT</span><code>/profile</code><span class="auth required">Required</span></div>
+                        <p>Updates profile fields. All fields are optional in the current controller because defaults are supplied.</p>
+                        <div class="code-wrap"><button class="copy-btn" data-copy>Copy</button><pre><code>{
+  "name": "Updated Name",
+  "avatar_url": "https://example.com/avatar.jpg",
+  "country": "India",
+  "birth_date": "2000-01-01",
+  "gender": "other",
+  "bio": "Music lover"
+}</code></pre></div>
+                        <div class="callout">Success message: <code>Profile updated successfully.</code></div>
+                    </article>
+                </div>
+            </section>
+
+            <!-- ============================== SETTINGS ============================== -->
+            <section id="settings" class="doc-section">
+                <div class="eyebrow">API Reference · Settings</div>
+                <h2>Settings</h2>
+                <div class="endpoint-list">
+                    <article class="endpoint-card">
+                        <div class="endpoint-head"><span class="method get">GET</span><code>/settings</code><span class="auth required">Required</span></div>
+                        <p>Returns theme, language, streaming/download quality, autoplay, crossfade, volume normalization and explicit-content preferences.</p>
+                        <div class="code-wrap"><button class="copy-btn" data-copy>Copy</button><pre><code>{
+  "theme": "system",
+  "language": "en",
+  "stream_quality": "high",
+  "download_quality": "high",
+  "autoplay": 1,
+  "crossfade_seconds": 0,
+  "normalize_volume": 1,
+  "explicit_content": 1
+}</code></pre></div>
+                    </article>
+                    <article class="endpoint-card">
+                        <div class="endpoint-head"><span class="method put">PUT</span><code>/settings</code><span class="auth required">Required</span></div>
+                        <div class="code-wrap"><button class="copy-btn" data-copy>Copy</button><pre><code>{
+  "theme": "dark",
+  "language": "en",
+  "stream_quality": "high",
+  "download_quality": "high",
+  "autoplay": 1,
+  "crossfade_seconds": 5,
+  "normalize_volume": 1,
+  "explicit_content": 1
+}</code></pre></div>
+                        <p style="margin-bottom:4px">Themes: <code>light</code>, <code>dark</code>, <code>system</code>. Stream/download quality: <code>low</code>, <code>medium</code>, <code>high</code>, <code>lossless</code>.</p>
+                    </article>
+                </div>
+            </section>
+
+            <!-- ============================== API EXPLORER ============================== -->
+            <section id="explorer" class="doc-section">
+                <div class="eyebrow">API Reference</div>
+                <h2>API Explorer</h2>
+                <p>Send a live request to the selected base URL above. Your token is kept only in memory for this session — it is never stored.</p>
+                <div class="explorer">
+                    <div class="explorer-row">
+                        <select id="expMethod"><option>GET</option><option>POST</option><option>PUT</option><option>DELETE</option></select>
+                        <input id="expPath" value="/songs" placeholder="/songs">
+                    </div>
+                    <div class="explorer-note">Requests go to: <code id="expBaseDisplay">https://musicapi-1xqp.onrender.com</code></div>
+                    <div>
+                        <label>Authorization — Bearer token (optional)</label>
+                        <input id="expToken" placeholder="paste JWT here for protected endpoints">
+                    </div>
+                    <div id="expBodyWrap" style="display:none">
+                        <label>Request body (JSON, optional)</label>
+                        <textarea id="expBody" placeholder='{ "song_id": 28 }'></textarea>
+                    </div>
+                    <div><button class="primary" id="expSend">Send Request</button></div>
+                    <div>
+                        <div class="explorer-status" id="expStatus"></div>
+                        <div class="explorer-resp" id="expResp">Response will appear here.</div>
+                    </div>
+                </div>
+                <div class="callout info">CORS on MusicAPI V2 currently allows all origins (<code>Access-Control-Allow-Origin: *</code>), so requests sent from this page reach the API directly.</div>
+            </section>
+
+            <!-- ============================== ROUTE TABLE ============================== -->
+            <section id="reference" class="doc-section">
+                <div class="eyebrow">API Reference</div>
+                <h2>Complete Active Route Table</h2>
+                <p>Only routes registered in <code>routes/api.php</code> are listed — this is the full active surface of MusicAPI V2.</p>
+                <div class="route-toolbar">
+                    <input id="routeFilter" class="search" placeholder="Filter endpoints, e.g. favorites or POST">
+                    <button class="chip active" data-method="ALL">ALL</button>
+                    <button class="chip" data-method="GET">GET</button>
+                    <button class="chip" data-method="POST">POST</button>
+                    <button class="chip" data-method="PUT">PUT</button>
+                    <button class="chip" data-method="DELETE">DELETE</button>
+                </div>
+                <div class="route-table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Method</th>
+                                <th>Endpoint</th>
+                                <th>Auth</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody id="routeTable"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- ============================== DATABASE ============================== -->
+            <section id="db-overview" class="doc-section">
+                <div class="eyebrow">Database</div>
+                <h2>Database Overview</h2>
+                <p>The production database name is <code>defaultdb</code>, hosted on Aiven's managed MySQL service and accessed through MySQLi.</p>
+                <div id="dbOverviewChips"></div>
+            </section>
+
+            <section id="er-diagram" class="doc-section">
+                <div class="eyebrow">Database</div>
+                <h2>Entity Relationship Diagram</h2>
+                <div class="code-wrap"><pre><code>                    ┌─────────────┐
+                    │    users    │
+                    └──────┬──────┘
+                           │
+          ┌────────────────┼────────────────┐
+          │                │                │
+          ▼                ▼                ▼
+    ┌───────────┐    ┌───────────┐   ┌───────────────┐
+    │ favorites │    │  history  │   │ user_settings │
+    └─────┬─────┘    └─────┬─────┘   └───────────────┘
+          │                │
+          ▼                ▼
+                    ┌─────────────┐
+                    │    songs    │
+                    └──────┬──────┘
+                           │
+            ┌──────────────┼──────────────┐
+            │              │              │
+            ▼              ▼              ▼
+      song_artists   song_albums    song_genres
+            │              │              │
+            ▼              ▼              ▼
+         artists        albums         genres
+
+users → playlists → playlist_songs → songs
+songs → song_views</code></pre></div>
+            </section>
+
+            <section id="db-tables" class="doc-section">
+                <div class="eyebrow">Database</div>
+                <h2>Tables</h2>
+                <div class="db-tables" id="dbTablesList"></div>
+            </section>
+
+            <!-- ============================== FLUTTER ============================== -->
+            <section id="flutter-base" class="doc-section">
+                <div class="eyebrow">Flutter</div>
+                <h2>Flutter Integration</h2>
+                <p>MusicAPI V2 is designed to be consumed directly by a Flutter client using the <code>http</code> package.</p>
+                <div class="code-wrap"><button class="copy-btn" data-copy>Copy</button><pre><code>const String baseUrl =
+    'https://musicapi-1xqp.onrender.com';</code></pre></div>
+            </section>
+
+            <section id="flutter-requests" class="doc-section">
+                <div class="eyebrow">Flutter</div>
+                <h2>GET / POST Requests</h2>
+                <div class="section-label">GET</div>
+                <div class="code-wrap"><button class="copy-btn" data-copy>Copy</button><pre><code>final response = await http.get(
+  Uri.parse('$baseUrl/songs?page=1&limit=20'),
+);</code></pre></div>
+                <div class="section-label">POST</div>
+                <div class="code-wrap"><button class="copy-btn" data-copy>Copy</button><pre><code>final response = await http.post(
+  Uri.parse('$baseUrl/favorites'),
+  headers: {
+    'Authorization': 'Bearer $token',
+    'Content-Type': 'application/json',
+  },
+  body: jsonEncode({ 'song_id': 28 }),
+);</code></pre></div>
+            </section>
+
+            <section id="flutter-jwt" class="doc-section">
+                <div class="eyebrow">Flutter</div>
+                <h2>Authenticated (JWT) Requests</h2>
+                <div class="code-wrap"><button class="copy-btn" data-copy>Copy</button><pre><code>final response = await http.get(
+  Uri.parse('$baseUrl/favorites'),
+  headers: {
+    'Authorization': 'Bearer $token',
+    'Content-Type': 'application/json',
+  },
+);</code></pre></div>
+            </section>
+
+            <section id="flutter-pagination" class="doc-section">
+                <div class="eyebrow">Flutter</div>
+                <h2>Pagination</h2>
+                <p>Paginated endpoints default to <code>page=1</code> and <code>limit=20</code>, capped at <code>limit=100</code>. Computed server-side as <code>offset = (page - 1) × limit</code>.</p>
+                <div class="code-wrap"><button class="copy-btn" data-copy>Copy</button><pre><code>{
+  "page": 1,
+  "limit": 20,
+  "total": 100,
+  "total_pages": 5,
+  "has_next": true,
+  "has_previous": false
+}</code></pre></div>
+            </section>
+
+            <!-- ============================== PAGINATION (operations summary) ============================== -->
+            <section id="pagination" class="doc-section">
+                <div class="eyebrow">Operations</div>
+                <h2>Pagination Reference</h2>
+                <p>Paginated endpoints use <code>page</code> and <code>limit</code>.</p>
+                <div class="two-col">
+                    <div class="card"><b>Default page</b><strong>1</strong></div>
+                    <div class="card"><b>Default limit</b><strong>20</strong></div>
+                    <div class="card"><b>Maximum limit</b><strong>100</strong></div>
+                    <div class="card"><b>Offset</b><strong>(page − 1) × limit</strong></div>
+                </div>
+            </section>
+
+            <!-- ============================== SECURITY ============================== -->
+            <section id="security" class="doc-section">
+                <div class="eyebrow">Operations</div>
+                <h2>Security</h2>
+                <ul class="nice-list">
+                    <li>Passwords are hashed with <code>PASSWORD_BCRYPT</code>.</li>
+                    <li>Database operations use prepared statements.</li>
+                    <li>JWT uses HS256 with a secret stored outside source control.</li>
+                    <li>Never commit passwords, API keys, tokens, <code>.env</code> or <code>config/secrets.php</code>.</li>
+                    <li>CORS currently allows all origins (<code>Access-Control-Allow-Origin: *</code>), allowed headers <code>Content-Type</code> / <code>Authorization</code>, and methods GET/POST/PUT/PATCH/DELETE/OPTIONS. OPTIONS requests respond with HTTP
+                        200. For production, consider restricting to trusted client origins.</li>
+                </ul>
+            </section>
+
+            <!-- ============================== DEPLOYMENT ============================== -->
+            <section id="deployment" class="doc-section">
+                <div class="eyebrow">Operations</div>
+                <h2>Deployment</h2>
+                <div class="flow"><span>GitHub</span><i>→</i><span>Render</span><i>→</i><span>Docker</span><i>→</i><span>PHP</span><i>→</i><span>Aiven MySQL</span></div>
+                <ol class="steps">
+                    <li>Push the project to GitHub.</li>
+                    <li>Create a Render Web Service.</li>
+                    <li>Connect the repository and configure Docker deployment.</li>
+                    <li>Add Render environment variables.</li>
+                    <li>Deploy and verify <code>GET /</code> and <code>GET /songs</code>.</li>
+                    <li>Inspect Render logs if an endpoint returns HTTP 500.</li>
+                </ol>
+                <div class="section-label">Docker</div>
+                <p>The project ships a <code>Dockerfile</code> based on <code>php:8.3-cli</code>, served with PHP's built-in server:</p>
+                <div class="code-wrap"><button class="copy-btn" data-copy>Copy</button><pre><code>php -S 0.0.0.0:${PORT:-10000}</code></pre></div>
+                <p>Required PHP extensions in the image: <code>mysqli</code> (the app connects with mysqli — this is mandatory), <code>pdo_mysql</code>, <code>zip</code>.</p>
+                <div class="callout warning"><b>Aiven port:</b> production connectivity uses the configured <code>DB_PORT</code> (documented as <code>22031</code>) — never assume MySQL's default <code>3306</code> for Aiven.</div>
+                <div class="code-wrap"><button class="copy-btn" data-copy>Copy</button><pre><code>new mysqli(
+    DB_HOST,
+    DB_USER,
+    DB_PASS,
+    DB_NAME,
+    DB_PORT
+);</code></pre></div>
+            </section>
+
+            <!-- ============================== TROUBLESHOOTING ============================== -->
+            <section id="troubleshooting" class="doc-section">
+                <div class="eyebrow">Operations</div>
+                <h2>Troubleshooting</h2>
+                <div class="trouble">
+                    <article>
+                        <h3><code>/song</code> → Route not found</h3>
+                        <p><code>/song</code> is not registered. Use <code>/songs</code> for the collection or <code>/songs/{id}</code> for one song.</p>
+                    </article>
+                    <article>
+                        <h3><code>/songs</code> → HTTP 500</h3>
+                        <p>Check, in order: Render environment variables, DB connection, <code>DB_HOST</code>, <code>DB_PORT</code> (not 3306 for Aiven), <code>DB_NAME</code>, <code>DB_USER</code>, <code>DB_PASS</code>, Aiven availability, the PHP <code>mysqli</code>                            extension, then Render logs.</p>
+                    </article>
+                    <article>
+                        <h3>JWT authentication fails</h3>
+                        <p>Verify the same <code>JWT_SECRET</code> is used for creation and validation, and send <code>Authorization: Bearer TOKEN</code> with a space after Bearer.</p>
+                    </article>
+                    <article>
+                        <h3>Local works, Render fails</h3>
+                        <p>Compare <code>DB_HOST</code>, <code>DB_PORT</code>, <code>DB_NAME</code>, <code>DB_USER</code>, <code>DB_PASS</code>, <code>JWT_SECRET</code>, <code>APP_ENV</code> and <code>APP_URL</code>, then inspect Render deployment logs.</p>
+                    </article>
+                </div>
+            </section>
+
+            <!-- ============================== IMPLEMENTATION NOTES ============================== -->
+            <section id="implementation" class="doc-section">
+                <div class="eyebrow">Operations</div>
+                <h2>Implementation Notes</h2>
+                <div class="callout warning"><b>Current implementation only.</b> Some database tables/controllers exist without active API routes — they're documented here for transparency, not as usable endpoints.</div>
+                <ul class="nice-list">
+                    <li><span class="not-registered">not registered</span> &nbsp;<code>GenreController</code> exists (index/show/search), but genre filtering is currently exposed through <code>GET /tracks?tags=...</code> instead.</li>
+                    <li><span class="not-registered">not registered</span> &nbsp;<code>artist_follows</code> table exists, but no active follow/unfollow route is registered.</li>
+                    <li><span class="not-registered">not registered</span> &nbsp;<code>notifications</code> table exists, but no notification API route is registered.</li>
+                    <li><span class="not-registered">not registered</span> &nbsp;<code>search_history</code> table exists, but no search-history endpoint is exposed.</li>
+                    <li><span class="not-registered">not registered</span> &nbsp;<code>GET /playlists/{id}</code> is not active despite a <code>show()</code> method existing; use <code>GET /playlists/{id}/tracks</code>.</li>
+                </ul>
+            </section>
+
+            <footer>
+                <div><b>MusicAPI V2</b><span>Developer documentation — current implementation only</span></div>
+                <span>PHP 8.3 · MySQL · REST · JWT · Built for Flutter</span>
+            </footer>
+        </main>
+    </div>
+    <button id="toTop" class="to-top" title="Back to top" aria-label="Back to top">↑</button>
+    <script src="script.js"></script>
+</body>
+
+</html>
